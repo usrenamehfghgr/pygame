@@ -1,4 +1,131 @@
-Pygame Front Page
+import pygame
+import time
+import random
+
+pygame.init()
+
+# Cores
+branco = (255, 255, 255)
+preto = (0, 0, 0)
+verde = (0, 255, 0)
+vermelho = (255, 0, 0)
+
+# Tamanho da tela
+largura = 600
+altura = 400
+
+# Tamanho do bloco da cobrinha
+tamanho_bloco = 10
+
+# Velocidade da cobrinha
+velocidade = 15
+
+# Fonte e tamanho do texto
+fonte = pygame.font.SysFont(None, 25)
+
+# Função para mostrar mensagem na tela
+def mensagem(msg, cor):
+    texto = fonte.render(msg, True, cor)
+    tela.blit(texto, [largura / 6, altura / 3])
+
+# Função principal do jogo
+def jogo():
+    game_over = False
+    game_close = False
+
+    # Posição inicial da cobrinha
+    x_cobrinha = largura / 2
+    y_cobrinha = altura / 2
+
+    # Inicialização do movimento da cobrinha
+    x_mudanca = 0
+    y_mudanca = 0
+
+    # Lista para armazenar o corpo da cobrinha
+    corpo_cobrinha = []
+    comprimento_cobrinha = 1
+
+    # Posição inicial da comida
+    comida_x = round(random.randrange(0, largura - tamanho_bloco) / 10.0) * 10.0
+    comida_y = round(random.randrange(0, altura - tamanho_bloco) / 10.0) * 10.0
+
+    while not game_over:
+
+        while game_close == True:
+            tela.fill(branco)
+            mensagem("Você perdeu! Pressione C para continuar ou Q para sair.", vermelho)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        game_over = True
+                        game_close = False
+                    if event.key == pygame.K_c:
+                        jogo()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    x_mudanca = -tamanho_bloco
+                    y_mudanca = 0
+                elif event.key == pygame.K_RIGHT:
+                    x_mudanca = tamanho_bloco
+                    y_mudanca = 0
+                elif event.key == pygame.K_UP:
+                    y_mudanca = -tamanho_bloco
+                    x_mudanca = 0
+                elif event.key == pygame.K_DOWN:
+                    y_mudanca = tamanho_bloco
+                    x_mudanca = 0
+
+        if x_cobrinha >= largura or x_cobrinha < 0 or y_cobrinha >= altura or y_cobrinha < 0:
+            game_close = True
+
+        x_cobrinha += x_mudanca
+        y_cobrinha += y_mudanca
+
+        tela.fill(branco)
+        pygame.draw.rect(tela, verde, [comida_x, comida_y, tamanho_bloco, tamanho_bloco])
+
+        # Criação do corpo da cobrinha
+        cabeca = []
+        cabeca.append(x_cobrinha)
+        cabeca.append(y_cobrinha)
+        corpo_cobrinha.append(cabeca)
+        if len(corpo_cobrinha) > comprimento_cobrinha:
+            del corpo_cobrinha[0]
+
+        # Verifica se a cabeça da cobrinha colidiu com seu próprio corpo
+        for segmento in corpo_cobrinha[:-1]:
+            if segmento == cabeca:
+                game_close = True
+
+        # Desenha a cobrinha
+        for parte in corpo_cobrinha:
+            pygame.draw.rect(tela, preto, [parte[0], parte[1], tamanho_bloco, tamanho_bloco])
+
+        pygame.display.update()
+
+        # Verifica se a cobrinha comeu a comida
+        if x_cobrinha == comida_x and y_cobrinha == comida_y:
+            comida_x = round(random.randrange(0, largura - tamanho_bloco) / 10.0) * 10.0
+            comida_y = round(random.randrange(0, altura - tamanho_bloco) / 10.0) * 10.0
+            comprimento_cobrinha += 1
+
+        # Velocidade da cobrinha
+        relogio.tick(velocidade)
+
+    pygame.quit()
+    quit()
+
+tela = pygame.display.set_mode((largura, altura))
+pygame.display.set_caption('Jogo da Cobrinha')
+relogio = pygame.time.Clock()
+
+jogo()Pygame Front Page
 =================
 
 .. toctree::
@@ -189,7 +316,7 @@ Reference
   Objects for images and the screen.
 
 :doc:`ref/surfarray`
-  Manipulate image pixel data.
+  Manipulate image pixel data. 
 
 :doc:`ref/tests`
   Test pygame.
